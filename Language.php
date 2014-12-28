@@ -4,7 +4,6 @@ namespace pvlg\language;
 
 use Yii;
 use yii\base\Component;
-use yii\helpers\Url;
 use yii\web\Cookie;
 
 /**
@@ -46,7 +45,7 @@ class Language extends Component
      * @var array cookie params
      */
     public $cookieParams = [];
-    
+
     /**
      * @var array
      */
@@ -68,7 +67,6 @@ class Language extends Component
                 $this->_languages[$code] = $language;
             } else {
                 $this->_languages[$code] = [
-                    'name' => $language,
                     'queryValue' => $language,
                     'cookieValue' => $language,
                     'sessionValue' => $language,
@@ -86,24 +84,10 @@ class Language extends Component
             $config = [
                 'name' => $this->cookieParam,
                 'value' => $this->_languages[$code]['cookieValue'],
+                'expire' => time() + 365 * 24 * 60 * 60,
             ];
-            if (isset($this->cookieParams['expire'])) {
-                $config['expire'] = $this->cookieParams['expire'];
-            } else {
-                $config['expire'] = time() + 365 * 24 * 60 * 60;
-            }
-            if (isset($this->cookieParams['path'])) {
-                $config['path'] = $this->cookieParams['path'];
-            }
-            if (isset($this->cookieParams['domain'])) {
-                $config['domain'] = $this->cookieParams['domain'];
-            }
-            if (isset($this->cookieParams['secure'])) {
-                $config['secure'] = $this->cookieParams['secure'];
-            }
-            if (isset($this->cookieParams['httponly'])) {
-                $config['httponly'] = $this->cookieParams['httponly'];
-            }
+            $config = array_merge($config, $this->cookieParams);
+
             Yii::$app->response->cookies->add(new Cookie($config));
             Yii::$app->session->set($this->sessionParam, $this->_languages[$code]['sessionValue']);
             Yii::$app->language = $code;
