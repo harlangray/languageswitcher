@@ -1,0 +1,21 @@
+{
+	"name": "pvlg/yii2-language-switcher",
+	"description": "Yii Framework 2.0 Component language switcher",
+	"keywords": ["yii2", "language", "switcher"],
+	"type": "yii2-extension",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Pavel Gurin",
+			"email": "gurinpavel.a@gmail.com"
+		}
+	],
+	"require": {
+		"yiisoft/yii2": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"pvlg\\language\\": ""
+		}
+	}
+}
