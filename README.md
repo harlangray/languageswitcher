@@ -46,7 +46,7 @@ return [
 ];
 ```
 
-You must define available languages in `php Yii::$app->params['languages'] ` as code => language
+You must define available languages in ```php Yii::$app->params['languages'] ``` as code => language
 
 ```php
 'languages' => [
