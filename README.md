@@ -32,16 +32,31 @@ return [
     'components' => [
         'lang' => [
             'class' => 'pvlg\language\Language',
-            'cookieParams' => [
-                'path' => '/',
-                'domain' => '.example.com',
-                // ...
-            ],
-            'queryParam' => 'l',
+            //'cookieParams' => [
+            //    'path' => '/',
+            //    'domain' => '.example.com',
+            //    // ...
+            //],
+            'queryParam' => 'lang',
             // ...
         ],
         // ...
     ],
     ...
 ];
+```
+
+You must define available languages in `php Yii::$app->params['languages'] ` as code => language
+
+```php
+[
+    'en' => 'english',
+    'ru' => 'russian',
+]
+```
+
+and use
+
+```
+http://example.com/?lang=russian
 ```
