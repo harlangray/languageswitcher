@@ -1,119 +1,88 @@
 <?php
 
-namespace pvlg\language;
-
+namespace harlangray\language;
 use Yii;
 use yii\base\Component;
-use yii\web\Cookie;
-
+use yii\helpers\Url;
 /**
- * Language switcher component
- * You must define available languages in Yii::$app->params['languages'] as code => language
+ * Language selector component
+ * You must define available languages in Yii::$app->params['languages'] as code => description
  * [
- *    'en' => 'english',
- *    'ru' => [
- *        'queryValue' => 'ru',
- *        'cookieValue' => 'rus',
- *        'sessionValue' => 'russian',
- *    ],
- *    'it' => [
- *        'queryValue' => 'italiano',
- *        'cookieValue' => 'italiano',
- *        'sessionValue' => 'italiano',
- *    ],
+ *    'it' => 'Italiano',
+ *    'en' => 'English',
  * ]
  */
 class Language extends Component
 {
-
     /**
-     * @var string language query param name
+     * @var string template for menu label.
+     * code - language code
+     * desc - language description
      */
-    public $queryParam = 'language';
-
+    public $menuTemplate = '{desc}';
     /**
-     * @var string language cookie param name
+     * @var string query param name 
      */
-    public $cookieParam = 'language';
-
-    /**
-     * @var string language session param name
-     */
-    public $sessionParam = 'language';
-
-    /**
-     * @var array cookie params
-     */
-    public $cookieParams = [];
-
-    /**
-     * @var array
-     */
-    private $_languages = [];
-
+    public $queryParam = 'lang';
+    
+    private $_key;
+    
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
-
+        
         if (!isset(Yii::$app->params['languages'])) {
             throw new \yii\base\InvalidConfigException("You must define Yii::\$app->params['languages'] array");
         }
-
-        foreach (Yii::$app->params['languages'] as $code => $language) {
-            if (is_array($language)) {
-                $this->_languages[$code] = $language;
+        
+        $request = Yii::$app->getRequest();
+        $lang = $request->get($this->queryParam);
+        $this->_key = 'language.' . $this->queryParam;
+        if ($lang !== null) {
+            Yii::$app->session->set($this->_key, $lang);
+            Yii::$app->language = $lang;
+        } elseif (Yii::$app->session->get($this->_key) === null) {
+            $preferredLang = $request->getPreferredLanguage(array_keys(Yii::$app->params['languages']));
+            if ($preferredLang !== null) {
+                Yii::$app->session->set($this->_key, $preferredLang);
+                Yii::$app->language = $preferredLang;
             } else {
-                $this->_languages[$code] = [
-                    'queryValue' => $language,
-                    'cookieValue' => $language,
-                    'sessionValue' => $language,
-                ];
+                 Yii::$app->session->set($this->_key, Yii::$app->language);
             }
-        }
-
-        $queryValue = Yii::$app->request->get($this->queryParam);
-        $cookieValue = Yii::$app->request->cookies->getValue($this->cookieParam);
-        $sessionValue = Yii::$app->session->get($this->sessionParam);
-
-        if ($queryValue !== null) {
-            $code = $this->getCode('queryValue', $queryValue);
-
-            $config = [
-                'name' => $this->cookieParam,
-                'value' => $this->_languages[$code]['cookieValue'],
-                'expire' => time() + 365 * 24 * 60 * 60,
-            ];
-            $config = array_merge($config, $this->cookieParams);
-
-            Yii::$app->response->cookies->add(new Cookie($config));
-            Yii::$app->session->set($this->sessionParam, $this->_languages[$code]['sessionValue']);
-            Yii::$app->language = $code;
-        } elseif ($cookieValue !== null && $cookieValue !== $sessionValue) {
-            $code = $this->getCode('cookieValue', $cookieValue);
-            Yii::$app->session->set($this->sessionParam, $this->_languages[$code]['sessionValue']);
-            Yii::$app->language = $code;
-        } elseif ($sessionValue !== null) {
-            $code = $this->getCode('sessionValue', $sessionValue);
-            Yii::$app->language = $code;
+        } else {
+            Yii::$app->language = Yii::$app->session->get($this->_key);
         }
     }
-
-    public function getLanguage()
+    
+    public function url($lang) 
     {
-        return $this->_languages[Yii::$app->language];
+        $resolve = Yii::$app->request->resolve();
+        $route = "/" . $resolve[0];
+        $params = $resolve[1];
+        
+        $params['lang'] = $lang;
+        return Url::toRoute(array_merge([$route], $params));
     }
-
-    public function getCode($param, $value)
+    
+    public function getMenuItems()
     {
-        foreach ($this->_languages as $code => $language) {
-            if ($language[$param] == $value) {
-                return $code;
+        $subItems = [];
+        foreach (Yii::$app->params['languages'] as $lang => $desc) {
+            if (Yii::$app->session->get($this->_key) == $lang) {
+                $item = ['label' => strtr($this->menuTemplate, [
+                    '{lang}' => $lang,
+                    '{desc}' => $desc,
+                ]), 'url' => '#'];
+            } else {
+                $subItems[] = ['label' => $desc, 'url' => $this->url($lang)];
             }
         }
-
-        return Yii::$app->language;
+        $item['items'] = $subItems;
+        return $item;
     }
 }
+
+?>
