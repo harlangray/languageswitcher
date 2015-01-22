@@ -1,5 +1,5 @@
-yii2-language-switcher
-======================
+languageswitcher
+================
 Component for Yii2 language switcher
 
 Installation
@@ -10,13 +10,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist pvlg/yii2-language-switcher "*"
+php composer.phar require --prefer-dist "harlangray/languageswitcher": "*"
 ```
 
 or add
 
 ```
-"pvlg/yii2-language-switcher": "*"
+"harlangray/languageswitcher": "*"
 ```
 
 to the require section of your `composer.json` file.
@@ -31,14 +31,10 @@ return [
     'bootstrap' => ['lang'],
     'components' => [
         'lang' => [
-            'class' => 'pvlg\language\Language',
-            //'cookieParams' => [
-            //    'path' => '/',
-            //    'domain' => '.example.com',
-            //    // ...
-            //],
+            'class' => 'harlangray\language\Language',
+    
             'queryParam' => 'lang',
-            // ...
+    
         ],
         // ...
     ],
