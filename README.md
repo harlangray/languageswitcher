@@ -32,7 +32,6 @@ return [
     'components' => [
         'lang' => [
             'class' => 'harlangray\language\Language',
-    
             'queryParam' => 'lang',
     
         ],
@@ -42,17 +41,32 @@ return [
 ];
 ```
 
-You must define available languages in `Yii::$app->params['languages']` as code => language
+You must define available languages in `Yii::$app->params['languages']` as code => language in the config/params.php
 
-```php
 'languages' => [
     'en' => 'english',
-    'ru' => 'russian',
-]
-```
+    'si' => 'සිංහල',
+    'ta' => 'தமிழ்'
+] 
+
 
 and use
 
 ```
-http://example.com/?lang=russian
+Yii::$app->lang->getMenuItems()
 ```
+In your menu "items"
+
+EX:
+echo Nav::widget([
+                'options' => ['class' => 'navbar-nav navbar-right'],
+                'items' => [
+                    ['label' => 'Home', 'url' => ['/site/index']],
+                    ........
+                    .........
+                    ........
+                    Yii::$app->lang->getMenuItems()
+                    ],                
+            ]);
+            NavBar::end();
+            
